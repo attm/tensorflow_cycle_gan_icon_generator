@@ -50,10 +50,8 @@ coverage.xml
 docs/_build/
 
 # Data files
-data/
 *.csv
 *.tsv
-*.npy
 
 # Models
 models/
