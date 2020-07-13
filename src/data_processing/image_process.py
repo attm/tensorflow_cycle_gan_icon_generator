@@ -85,4 +85,3 @@ def process_image(img : PIL.Image.Image, blur_radius : int = 2, reduced_palette_
     processed_image = apply_blur(img, blur_radius=blur_radius)
     processed_image = apply_palette_reduction(processed_image, reduced_palette_colors_count=reduced_palette_colors_count)
     return processed_image
-

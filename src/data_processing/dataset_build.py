@@ -34,7 +34,7 @@ def process_images_folder(raw_images_folder_path : str, processed_images_folder_
         raise AttributeError("process_images_folder: processed_images_folder_path not exists, given is {0}".format(processed_images_folder_path))
 
     files_list = [f for f in listdir(raw_images_folder_path) if isfile(pjoin(raw_images_folder_path, f))]
-    files_list.sort(key=lambda f: int(re.sub('\D', '', f)))
+    files_list.sort(key=lambda f: int(re.sub('([a-zA-Z])*', '', f)))
     
     # Processing all images in raw_images folder
     start_time = time.time()
@@ -57,7 +57,7 @@ def process_images_folder(raw_images_folder_path : str, processed_images_folder_
     print("\nImage processing complete in {:.2f} seconds.".format(end_time-start_time))
     print("Processed {0} images.".format(i))
 
-def build_numpy_dataset_from_folder(folder_path : str, dataset_save_path : str = None, rescale : int = 1.0/255.0) -> np.ndarray:
+def build_numpy_dataset_from_folder(folder_path : str, dataset_save_path : str = None, rescale : int = 1.0/255.0, save_dtype="float16") -> np.ndarray:
     """
     Builds numpy ndarray from images. Optionally save it.
 
@@ -73,15 +73,22 @@ def build_numpy_dataset_from_folder(folder_path : str, dataset_save_path : str =
     
     files_list = os.listdir(folder_path)
     dataset_list = []
+    start_time = time.time()
     for file_name in files_list:
         img = open_image(pjoin(folder_path, file_name))
+        img = prepare_img_for_numpy(img)
         np_img = ndarray_from_img(img, rescale=rescale)
         dataset_list.append(np_img)
-    
-    dataset = np.array(dataset_list)
+
+    dataset = np.array(dataset_list, dtype=save_dtype)
+
+    end_time = time.time()
+    print("\nNumpy dataset building from folder complete in {:.2f} seconds.".format(end_time-start_time))
+    print("Dataset shape is {0}".format(dataset.shape))
 
     if isinstance(dataset_save_path, str) and dataset_save_path is not False:
         np.save(dataset_save_path, dataset)
+        print("Numpy dataset saved at {0}".format(dataset_save_path))
     return dataset
     
 def ndarray_from_img(img : PIL.Image.Image, rescale: int = 1.0/255.0) -> np.ndarray:
@@ -94,5 +101,22 @@ def ndarray_from_img(img : PIL.Image.Image, rescale: int = 1.0/255.0) -> np.ndar
         ndarray_image (np.ndarray) : array, format is height x width x channels.
     """
     ndarray_image = np.array(img)
+    print("Shape of generated dataset is {0}".format(ndarray_image.shape))
     ndarray_image = ndarray_image * rescale
     return ndarray_image
+
+def prepare_img_for_numpy(img : PIL.Image.Image) -> None:
+    """
+    Preparing image for transforming into numpy ndarray.
+
+    Parameters:
+        img (PIL.Image.Image) : image to be prepared.
+    Returns:
+        prepared_img (PIL.Image.Image) : prepared image.
+    """
+    if not isinstance(img, PIL.Image.Image):
+        raise TypeError("prepare_img_for_numpy: expected image of type PIL.Image.Image, got {0}".format(type(img)))
+
+    prepared_img = img.convert("RGB")
+    return prepared_img
+
