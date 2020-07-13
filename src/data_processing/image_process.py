@@ -21,7 +21,7 @@ def open_image(img_path : str) -> PIL.Image.Image:
         img (Image) : PIL.Image object.
     """
     if exists(img_path):
-        img = Image.open(img_path)
+        img = Image.open(img_path, mode="r")
         return img
     else:
         raise FileNotFoundError("Path not exists, given path is {0}".format(img_path))
@@ -51,8 +51,8 @@ def apply_blur(img : PIL.Image.Image, blur_radius : int = BLUR_blur_radius) -> P
     if not isinstance(img, PIL.Image.Image):
         raise TypeError("apply_blur: expected img of type PIL.Image, got {0}".format(type(img)))
 
-    blurred_image = img.convert("RGB")
-    blurred_image = img.filter(ImageFilter.GaussianBlur(blur_radius))
+    blurred_image = img.convert("RGBA")
+    blurred_image = blurred_image.filter(ImageFilter.GaussianBlur(blur_radius))
     return blurred_image
 
 def apply_palette_reduction(img : PIL.Image.Image, reduced_palette_colors_count : int = REDUCED_PALETTE_COLORS_COUNT) -> PIL.Image.Image:
