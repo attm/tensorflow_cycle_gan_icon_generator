@@ -7,4 +7,8 @@ setup(
    description='Personal project package',
    author='atgm1113',
    author_email='atgm1113@gmail.com',
-   packages=[])
+   packages=["src",
+             "src.data_processing",
+             "src.main",
+             "src.models_building",
+             "src.tests"])
