@@ -101,7 +101,6 @@ def ndarray_from_img(img : PIL.Image.Image, rescale: int = 1.0/255.0) -> np.ndar
         ndarray_image (np.ndarray) : array, format is height x width x channels.
     """
     ndarray_image = np.array(img)
-    print("Shape of generated dataset is {0}".format(ndarray_image.shape))
     ndarray_image = ndarray_image * rescale
     return ndarray_image
 
