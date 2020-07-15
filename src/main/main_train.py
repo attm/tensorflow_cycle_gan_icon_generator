@@ -25,8 +25,8 @@ PATCH_SHAPE = 4
 USE_CPU = False
 LOAD_SAVED_MODEL = True
 SAVE_LOGS = True
-LOAD_LOGS = False
-SAVE_MODEL_N_EPOCHS_EACH = 2000
+LOAD_LOGS = True
+SAVE_MODEL_N_EPOCHS_EACH = 200
 
 if USE_CPU:
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -94,6 +94,7 @@ def main():
             models = load_cyclegan_model(SAVED_MODELS_PATH)
             print("Loaded models from folder")
         except Exception:
+            models = build_cycle_gan(IMG_SHAPE)
             print("Folder not found or models not exists, building new")
     else:
         models = build_cycle_gan(IMG_SHAPE)
