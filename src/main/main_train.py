@@ -4,7 +4,7 @@ import numpy as np
 import time
 import tensorflow as tf
 from src.models_building.model_utils import generate_fake_samples, generate_patch_labels, generate_real_samples, build_cycle_gan
-from src.train.train_utils import update_image_pool, list_average, save_cyclegan_model, load_cyclegan_model
+from src.train.train_utils import update_image_pool, list_average, save_cyclegan_model, load_cyclegan_model, save_train_logs, load_train_logs
 
 
 # Datasets path
@@ -13,6 +13,7 @@ DATASETS_FOLDER_PATH = pjoin(cwd, "data", "datasets")
 INPUT_DATASET_NAME = pjoin(DATASETS_FOLDER_PATH, "input.npy")
 TARGET_DATASET_NAME = pjoin(DATASETS_FOLDER_PATH, "target.npy")
 SAVED_MODELS_PATH = pjoin(cwd, "models")
+LOGS_FOLDER_PATH = pjoin(cwd, "logs")
 
 # Model parameters
 IMG_SHAPE = (60, 60, 3)
@@ -23,6 +24,8 @@ N_EPOCHS = 20000
 PATCH_SHAPE = 4
 USE_CPU = False
 LOAD_SAVED_MODEL = True
+SAVE_LOGS = True
+LOAD_LOGS = False
 SAVE_MODEL_N_EPOCHS_EACH = 2000
 
 if USE_CPU:
@@ -91,7 +94,6 @@ def main():
             models = load_cyclegan_model(SAVED_MODELS_PATH)
             print("Loaded models from folder")
         except Exception:
-            models = build_cycle_gan(IMG_SHAPE)
             print("Folder not found or models not exists, building new")
     else:
         models = build_cycle_gan(IMG_SHAPE)
@@ -101,7 +103,6 @@ def main():
     pool_B = []
     pools = [pool_A, pool_B]
 
-    # Defining training logs lists
     # Generator losses
     gen_AtoB_losses_avg = []
     gen_BtoA_losses_avg = []
@@ -112,6 +113,15 @@ def main():
     dis_B_losses_avg = []
     dis_A_losses = []
     dis_B_losses = []
+
+    # Defining training logs lists
+    if LOAD_LOGS:
+        try:
+            logs = load_train_logs(LOGS_FOLDER_PATH)
+            gen_AtoB_losses, gen_BtoA_losses, dis_A_losses, dis_B_losses = logs
+            print("Loaded logs from {0}".format(LOGS_FOLDER_PATH))
+        except Exception:
+            print("Can't load logs from {0}".format(LOGS_FOLDER_PATH))
 
     # MAIN TRAINING CYCLE
     for i in range(N_EPOCHS):
@@ -155,6 +165,11 @@ def main():
         if i % SAVE_MODEL_N_EPOCHS_EACH == 0  and i >= SAVE_MODEL_N_EPOCHS_EACH:
             save_cyclegan_model(models, SAVED_MODELS_PATH)
             print("Models saved at epoch number {0}".format(i))
+
+        # Saving logs each epoch
+        if SAVE_LOGS:
+            logs = [gen_AtoB_losses, gen_BtoA_losses, dis_A_losses, dis_B_losses]
+            save_train_logs(logs, LOGS_FOLDER_PATH)
 
 if __name__ == "__main__":
     main()

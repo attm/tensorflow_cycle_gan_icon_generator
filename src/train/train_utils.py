@@ -3,6 +3,7 @@ from random import randint, random
 from os.path import join as pjoin
 import os
 import tensorflow as tf
+import json
 
 
 def update_image_pool(pool : list, images : list, max_size : int = 50) -> np.ndarray:
@@ -89,3 +90,69 @@ def load_cyclegan_model(load_folder_path : str) -> list:
     c_model_BtoA = tf.keras.models.load_model(pjoin(load_folder_path, "compBtoA"))
 
     return [d_model_A, d_model_B, g_model_AtoB, g_model_BtoA, c_model_AtoB, c_model_BtoA]
+
+def save_json(data : object, save_path : str) -> None:
+    """
+    Saves data in json format.
+
+    Parameters:
+        data (object) : data to be saved.
+        save_path (str) : data will be saved in that file.
+    Returns:
+        None
+    """
+    with open(save_path, "w") as f:
+        json.dump(data, f)
+
+def load_json(load_path : str) -> object:
+    """
+    Loads json from path. 
+
+    Parameters:
+        load_path (str) : json file with data that need to be loaded.
+    Returns:
+        loaded (object) : loaded file from json.
+    """
+    if not os.path.exists(load_path):
+        raise FileNotFoundError("load_json: load_path not exists, got path {0}".format(load_path))
+
+    with open(load_path, "r") as f:
+        return json.load(f)
+
+def load_train_logs(logs_folder_path : str) -> list:
+    """
+    Loads logs from folder.
+
+    Parameters:
+        logs_folder_path (str) : folder path from which logs will be loaded.
+    Returns:
+        logs (list) : list of logs, order is gen_AtoB_losses, gen_BtoA_losses, dis_A_losses, dis_B_losses
+    """
+    if not os.path.exists(logs_folder_path):
+        raise FileNotFoundError("load_train_logs: logs_folder_path not exists, got path {0}".format(logs_folder_path))
+
+    gen_AtoB_losses = load_json(pjoin(logs_folder_path, "gen_AtoB_losses.json"))
+    gen_BtoA_losses = load_json(pjoin(logs_folder_path, "gen_BtoA_losses.json"))
+    dis_A_losses = load_json(pjoin(logs_folder_path, "dis_A_losses.json"))
+    dis_B_losses = load_json(pjoin(logs_folder_path, "dis_B_losses.json"))
+    return [gen_AtoB_losses, gen_BtoA_losses, dis_A_losses, dis_B_losses]
+
+def save_train_logs(logs : list, logs_folder_path : str) -> None:
+    """
+    Saves logs to the given folder, logs will be saved in json format.
+
+    Parameters:
+        logs (list) : logs to be saved, list must contain gen_AtoB_losses, gen_BtoA_losses, dis_A_losses, dis_B_losses
+        logs_folder_path (str) : path of the folder where logs will be saved.
+    Returns:
+        None
+    """
+    if not os.path.exists(logs_folder_path):
+        raise FileNotFoundError("load_train_logs: logs_folder_path not exists, got path {0}".format(logs_folder_path))
+
+    gen_AtoB_losses, gen_BtoA_losses, dis_A_losses, dis_B_losses = logs
+    save_json(gen_AtoB_losses, pjoin(logs_folder_path, "gen_AtoB_losses.json"))
+    save_json(gen_BtoA_losses, pjoin(logs_folder_path, "gen_BtoA_losses.json"))
+    save_json(dis_A_losses, pjoin(logs_folder_path, "dis_A_losses.json"))
+    save_json(dis_B_losses, pjoin(logs_folder_path, "dis_B_losses.json"))
+    return None
