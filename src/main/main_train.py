@@ -4,7 +4,7 @@ import numpy as np
 import time
 import tensorflow as tf
 from src.models_building.model_utils import generate_fake_samples, generate_patch_labels, generate_real_samples, build_cycle_gan
-from src.train.train_utils import update_image_pool, list_average
+from src.train.train_utils import update_image_pool, list_average, save_cyclegan_model, load_cyclegan_model
 
 
 # Datasets path
@@ -12,15 +12,18 @@ cwd = os.getcwd()
 DATASETS_FOLDER_PATH = pjoin(cwd, "data", "datasets")
 INPUT_DATASET_NAME = pjoin(DATASETS_FOLDER_PATH, "input.npy")
 TARGET_DATASET_NAME = pjoin(DATASETS_FOLDER_PATH, "target.npy")
+SAVED_MODELS_PATH = pjoin(cwd, "models")
 
 # Model parameters
 IMG_SHAPE = (60, 60, 3)
 
 # Training parameters
 BATCH_SIZE = 4
-N_EPOCHS = 500
+N_EPOCHS = 20000
 PATCH_SHAPE = 4
 USE_CPU = False
+LOAD_SAVED_MODEL = True
+SAVE_MODEL_N_EPOCHS_EACH = 2000
 
 if USE_CPU:
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -82,8 +85,17 @@ def main():
     print("Input dataset shape is {0}".format(input_data.shape))
     print("Target dataset shape is {0}".format(target_data.shape))
 
-    # Building models
-    models = build_cycle_gan(IMG_SHAPE)
+    # Building models (or loading if LOAD_SAVED_MODEL is True)
+    if LOAD_SAVED_MODEL:
+        try:
+            models = load_cyclegan_model(SAVED_MODELS_PATH)
+            print("Loaded models from folder")
+        except Exception:
+            models = build_cycle_gan(IMG_SHAPE)
+            print("Folder not found or models not exists, building new")
+    else:
+        models = build_cycle_gan(IMG_SHAPE)
+        print("Built models")
     # Defining pools
     pool_A = []
     pool_B = []
@@ -108,7 +120,7 @@ def main():
         target_batch = target_data[i*BATCH_SIZE:(i+1)*BATCH_SIZE]
         # Training cyclegan
         print("############################################################")
-        print("EPOCHS: {0}/{1}".format(i+1, N_EPOCHS))
+        print("EPOCHS: {0}/{1}".format(i, N_EPOCHS))
         logs = train_cycle_gan_on_batch(models, pools, input_batch, target_batch, patch_shape=PATCH_SHAPE)
         g_model_AtoB_loss, g_model_BtoA_loss, dis_A_loss1, dis_A_loss2, dis_B_loss1, dis_B_loss2 = logs
 
@@ -138,6 +150,11 @@ def main():
         print("Discriminators losses are:")
         print("    Discriminator A (input) loss is {0}".format(dis_A_loss_avg))
         print("    Discriminator B (target) loss is {0}".format(dis_B_loss_avg))
+
+        # Saving model each number of epochs
+        if i % SAVE_MODEL_N_EPOCHS_EACH == 0  and i >= SAVE_MODEL_N_EPOCHS_EACH:
+            save_cyclegan_model(models, SAVED_MODELS_PATH)
+            print("Models saved at epoch number {0}".format(i))
 
 if __name__ == "__main__":
     main()

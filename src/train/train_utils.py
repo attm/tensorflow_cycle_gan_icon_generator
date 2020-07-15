@@ -1,5 +1,8 @@
 import numpy as np
 from random import randint, random
+from os.path import join as pjoin
+import os
+import tensorflow as tf
 
 
 def update_image_pool(pool : list, images : list, max_size : int = 50) -> np.ndarray:
@@ -44,3 +47,45 @@ def list_average(input_list : list) -> float:
             summ_value += v
     return summ_value / len(input_list)
 
+def save_cyclegan_model(models : list, save_folder_path : str) -> None:
+    """
+    Saves cycleGAN model weight to the folder.
+
+    Parameters:
+        models (list) : list of models, order in list is d_model_A, d_model_B, g_model_AtoB, g_model_BtoA, c_model_AtoB, c_model_BtoA
+        save_folder_path (str) : path of folder where models should be saved.
+    Returns:
+        None
+    """
+    if not os.path.exists(save_folder_path):
+        raise FileNotFoundError("save_cyclegan_model: path not exists, got path {0}".format(save_folder_path))
+
+    d_model_A, d_model_B, g_model_AtoB, g_model_BtoA, c_model_AtoB, c_model_BtoA = models
+    
+    d_model_A.save(pjoin(save_folder_path, "disA"))
+    d_model_B.save(pjoin(save_folder_path, "disB"))
+    g_model_AtoB.save(pjoin(save_folder_path, "genAtoB"))
+    g_model_BtoA.save(pjoin(save_folder_path, "genBtoA"))
+    c_model_AtoB.save(pjoin(save_folder_path, "compAtoB"))
+    c_model_BtoA.save(pjoin(save_folder_path, "compBtoA"))
+
+def load_cyclegan_model(load_folder_path : str) -> list:
+    """
+    Loads models from folder, returns list of models.
+
+    Parameters:
+        load_folder_path (str) : path of the folder where models are saved.
+    Returns:
+        models (list) : list of models, order is d_model_A, d_model_B, g_model_AtoB, g_model_BtoA, c_model_AtoB, c_model_BtoA
+    """
+    if not os.path.exists(load_folder_path):
+        raise FileNotFoundError("load_cyclegan_model: load_folder_path not extists, got path {0}".format(load_folder_path))
+
+    d_model_A = tf.keras.models.load_model(pjoin(load_folder_path, "disA"))
+    d_model_B = tf.keras.models.load_model(pjoin(load_folder_path, "disB"))
+    g_model_AtoB = tf.keras.models.load_model(pjoin(load_folder_path, "genAtoB"))
+    g_model_BtoA = tf.keras.models.load_model(pjoin(load_folder_path, "genBtoA"))
+    c_model_AtoB = tf.keras.models.load_model(pjoin(load_folder_path, "compAtoB"))
+    c_model_BtoA = tf.keras.models.load_model(pjoin(load_folder_path, "compBtoA"))
+
+    return [d_model_A, d_model_B, g_model_AtoB, g_model_BtoA, c_model_AtoB, c_model_BtoA]

@@ -1,5 +1,5 @@
 import pytest
-from src.training.training_utils import list_average
+from src.train.train_utils import list_average
 
 
 def test_list_average():
