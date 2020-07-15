@@ -49,6 +49,10 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# Saved models
+models/
+saved_models/
+
 # Data files
 *.csv
 *.tsv
