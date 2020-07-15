@@ -2,6 +2,7 @@ tensorflow_addons
 pandas
 numpy
 matplotlib
+seaborn
 jupyter
 flask
 pytest
