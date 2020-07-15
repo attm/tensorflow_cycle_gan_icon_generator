@@ -11,4 +11,5 @@ setup(
              "src.data_processing",
              "src.main",
              "src.models_building",
-             "src.tests"])
+             "src.tests",
+             "src.train"])

@@ -3,7 +3,8 @@ import os
 import numpy as np
 import time
 import tensorflow as tf
-from src.models_building.model_utils import generate_fake_samples, generate_patch_labels, update_image_pool, generate_real_samples, build_cycle_gan
+from src.models_building.model_utils import generate_fake_samples, generate_patch_labels, generate_real_samples, build_cycle_gan
+from src.train.train_utils import update_image_pool, list_average
 
 
 # Datasets path
@@ -72,12 +73,7 @@ def train_cycle_gan_on_batch(models : list, pools : list, input_batch : np.ndarr
     end_time = time.time()
 
     print("\nCycle GAN trained on batch in {:.2f} seconds".format(end_time-start_time))
-    print("\nGenerators losses are:")
-    print("    Generator AtoB (input to target) loss is {0}".format(g_model_AtoB_loss))
-    print("    Generator BtoA (target to input) loss is {0}".format(g_model_BtoA_loss))
-    print("Discriminators losses are:")
-    print("    Discriminator A (input) losses are {0} and {1}".format(dis_A_loss1, dis_A_loss2))
-    print("    Discriminator B (target) losses are {0} and {1}".format(dis_B_loss1, dis_B_loss2))
+    return [g_model_AtoB_loss, g_model_BtoA_loss, dis_A_loss1, dis_A_loss2, dis_B_loss1, dis_B_loss2]
 
 def main():
     # Loading training data
@@ -93,6 +89,18 @@ def main():
     pool_B = []
     pools = [pool_A, pool_B]
 
+    # Defining training logs lists
+    # Generator losses
+    gen_AtoB_losses_avg = []
+    gen_BtoA_losses_avg = []
+    gen_AtoB_losses = []
+    gen_BtoA_losses = []
+    # Discriminator losses
+    dis_A_losses_avg = []
+    dis_B_losses_avg = []
+    dis_A_losses = []
+    dis_B_losses = []
+
     # MAIN TRAINING CYCLE
     for i in range(N_EPOCHS):
         # Getting batch of data
@@ -100,8 +108,36 @@ def main():
         target_batch = target_data[i*BATCH_SIZE:(i+1)*BATCH_SIZE]
         # Training cyclegan
         print("############################################################")
-        print("EPOCHS: {0}/{1}".format(i, N_EPOCHS))
-        train_cycle_gan_on_batch(models, pools, input_batch, target_batch, patch_shape=PATCH_SHAPE)
+        print("EPOCHS: {0}/{1}".format(i+1, N_EPOCHS))
+        logs = train_cycle_gan_on_batch(models, pools, input_batch, target_batch, patch_shape=PATCH_SHAPE)
+        g_model_AtoB_loss, g_model_BtoA_loss, dis_A_loss1, dis_A_loss2, dis_B_loss1, dis_B_loss2 = logs
+
+        # Calctulating losses averages
+        # AtoB Generator losses
+        gen_AtoB_losses.append(g_model_AtoB_loss)
+        gen_AtoB_loss_avg = list_average(gen_AtoB_losses)
+        gen_AtoB_losses_avg.append(gen_AtoB_loss_avg)
+        # BtoA Generator losses
+        gen_BtoA_losses.append(g_model_BtoA_loss)
+        gen_BtoA_loss_avg = list_average(gen_BtoA_losses)
+        gen_BtoA_losses_avg.append(gen_BtoA_loss_avg)
+        # Discriminator A losses
+        dis_A_loss = (dis_A_loss1 + dis_A_loss2) / 2.0
+        dis_A_losses.append(dis_A_loss)
+        dis_A_loss_avg = list_average(dis_A_losses)
+        dis_A_losses_avg.append(dis_A_loss_avg)
+        # Discriminator B losses
+        dis_B_loss = (dis_B_loss1 + dis_B_loss2) / 2.0
+        dis_B_losses.append(dis_B_loss)
+        dis_B_loss_avg = list_average(dis_B_losses)
+        dis_B_losses_avg.append(dis_B_loss_avg)
+
+        print("\nGenerators losses are:")
+        print("    Generator AtoB (input to target) loss is {0}".format(gen_AtoB_loss_avg))
+        print("    Generator BtoA (target to input) loss is {0}".format(gen_BtoA_loss_avg))
+        print("Discriminators losses are:")
+        print("    Discriminator A (input) loss is {0}".format(dis_A_loss_avg))
+        print("    Discriminator B (target) loss is {0}".format(dis_B_loss_avg))
 
 if __name__ == "__main__":
     main()
