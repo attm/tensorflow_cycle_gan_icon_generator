@@ -53,9 +53,6 @@ docs/_build/
 *.csv
 *.tsv
 
-# Models
-models/
-
 # VS code
 .vscode/
 .devcontainer/
