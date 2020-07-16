@@ -2,7 +2,7 @@ import pytest
 from PIL.Image import Image
 from os.path import join as pjoin
 import os
-from src.data_processing.image_process import open_image, apply_blur, apply_palette_reduction, process_image
+from src.data_process.image_process import open_image, apply_blur, apply_palette_reduction, process_image
 
 
 cwd = os.path.dirname(os.path.realpath(__file__))

@@ -1,9 +1,9 @@
 import numpy as np
 from tensorflow.keras import Model
 from random import random, randint
-from src.models_building.cycle_gan_build import define_composite_model
-from src.models_building.discriminator_build import define_discriminator
-from src.models_building.generator_build import define_generator
+from src.models_build.cycle_gan_build import define_composite_model
+from src.models_build.discriminator_build import define_discriminator
+from src.models_build.generator_build import define_generator
 
 
 def build_cycle_gan(image_shape : tuple) -> list:

@@ -3,7 +3,7 @@ import os
 import numpy as np
 import time
 import tensorflow as tf
-from src.models_building.model_utils import generate_fake_samples, generate_patch_labels, generate_real_samples, build_cycle_gan
+from src.models_build.model_utils import generate_fake_samples, generate_patch_labels, generate_real_samples, build_cycle_gan
 from src.train.train_utils import update_image_pool, list_average, save_cyclegan_model, load_cyclegan_model, save_train_logs, load_train_logs
 
 

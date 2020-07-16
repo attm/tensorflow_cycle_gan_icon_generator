@@ -1,5 +1,5 @@
 import pytest
-from src.models_building.model_utils import generate_patch_labels
+from src.models_build.model_utils import generate_patch_labels
 
 
 def test_generate_patch_labels():

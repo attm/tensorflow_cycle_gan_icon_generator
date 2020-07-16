@@ -1,7 +1,7 @@
 import pytest
 import os
 from os.path import join as pjoin
-from src.data_processing.dataset_build import build_numpy_dataset_from_folder
+from src.data_process.dataset_build import build_numpy_dataset_from_folder
 
 
 cwd = os.path.dirname(os.path.realpath(__file__))

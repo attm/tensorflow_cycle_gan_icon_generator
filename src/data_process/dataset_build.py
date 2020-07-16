@@ -7,7 +7,7 @@ import numpy as np
 import functools
 import re
 import time
-from src.data_processing.image_process import process_image, open_image, save_image
+from src.data_process.image_process import process_image, open_image, save_image
 
 
 DEFAULT_PROCESS_FUNCTION = functools.partial(process_image)

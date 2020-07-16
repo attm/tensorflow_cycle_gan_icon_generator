@@ -8,8 +8,9 @@ setup(
    author='atgm1113',
    author_email='atgm1113@gmail.com',
    packages=["src",
-             "src.data_processing",
+             "src.data_process",
              "src.main",
-             "src.models_building",
+             "src.models_build",
              "src.tests",
-             "src.train"])
+             "src.train",
+             "src.model"])

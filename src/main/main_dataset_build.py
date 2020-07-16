@@ -1,6 +1,6 @@
 from os.path import join as pjoin
 import os
-from src.data_processing.dataset_build import process_images_folder, build_numpy_dataset_from_folder
+from src.data_process.dataset_build import process_images_folder, build_numpy_dataset_from_folder
  
 
 cwd = os.getcwd()
