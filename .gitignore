@@ -53,11 +53,11 @@ docs/_build/
 models/
 
 # Data files
-data/
 *.csv
 *.tsv
-*.npy
-*.png
+
+# Logs files
+/logs
 
 # VS code
 .vscode/
