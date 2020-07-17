@@ -18,7 +18,7 @@ TRANSFORMED_IMAGES_FOLDER_PATH = pjoin(cwd, "data", "transformed")
 
 def main():
     input_dataset = np.load(INPUT_DATASET_PATH)
-    data_to_predict = input_dataset[5].reshape(1, 60, 60, 3)
+    data_to_predict = input_dataset[2].reshape(1, 60, 60, 3)
 
     predictor_model = tf.keras.models.load_model(PREDICTOR_MODEL_PATH)
 
